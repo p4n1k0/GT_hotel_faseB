@@ -11,7 +11,7 @@ namespace TrybeHotel.Controllers
 {
     [ApiController]
     [Route("booking")]
-  
+
     public class BookingController : Controller
     {
         private readonly IBookingRepository _repository;
@@ -21,14 +21,25 @@ namespace TrybeHotel.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody] BookingDtoInsert bookingInsert){
-            throw new NotImplementedException();
+        [Authorize(Policy = "Client")]
+        public IActionResult Add([FromBody] BookingDtoInsert bookingInsert)
+        {
+            try
+            {
+                return StatusCode(201, _repository.Add(bookingInsert, (HttpContext.User.Identity as ClaimsIdentity)!
+                .Claims.First(claim => claim.Type == ClaimTypes.Email).Value));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
         }
 
 
         [HttpGet("{Bookingid}")]
-        public IActionResult GetBooking(int Bookingid){
-           throw new NotImplementedException();
+        public IActionResult GetBooking(int Bookingid)
+        {
+            throw new NotImplementedException();
         }
     }
 }
