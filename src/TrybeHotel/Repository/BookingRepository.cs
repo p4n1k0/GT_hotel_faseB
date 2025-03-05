@@ -38,6 +38,15 @@ namespace TrybeHotel.Repository
 
         public BookingResponse GetBooking(int bookingId, string email)
         {
+            if (_context.Users.Select(user => new { user.Email, user.UserId})
+            .First(user => user.Email == email).UserId != _context.Bookings
+            .Select(booking => new { booking.BookingId, booking.UserId})
+            .First(booking => booking.BookingId == bookingId)
+            .UserId)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
             return _context.Bookings
             .Include(booking => booking.Room)
             .ThenInclude(room => room!.Hotel)

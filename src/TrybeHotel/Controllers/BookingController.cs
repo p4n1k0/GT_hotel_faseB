@@ -39,7 +39,16 @@ namespace TrybeHotel.Controllers
         [HttpGet("{Bookingid}")]
         public IActionResult GetBooking(int Bookingid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return Ok(_repository.GetBooking(Bookingid, (HttpContext.User.Identity as ClaimsIdentity)!
+                .Claims.First(claim => claim.Type == ClaimTypes.Email).Value));
+
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
         }
     }
 }
