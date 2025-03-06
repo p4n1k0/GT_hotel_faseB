@@ -137,4 +137,16 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
         Assert.Contains("Marrocos", JsonConvert.DeserializeObject<Hotel>(await response.Content.ReadAsStringAsync())!.Name);
     }
 
+
+    [Trait("Category", "Testando endpoint GET /room/{hotelId}")]
+    [Theory(DisplayName = "Será validado se a resposta do status code é 200 e o JSON de resposta está correto")]
+    [InlineData("/room/1")]
+    public async Task TestGetRoomByHotelIdStatusCodeOk(string url)
+    {
+        var response = await _clientTest.GetAsync(url);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(JsonConvert.DeserializeObject<List<Room>>(await response.Content.ReadAsStringAsync()));
+        Assert.True(JsonConvert.DeserializeObject<List<Room>>(await response.Content.ReadAsStringAsync())!.Count > 0);
+    }
+
 }
