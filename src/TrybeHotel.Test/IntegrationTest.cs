@@ -11,6 +11,9 @@ using System.Diagnostics;
 using System.Xml;
 using System.IO;
 using System.Text;
+using TrybeHotel.Dto;
+using TrybeHotel.Services;
+using System.Net.Http.Headers;
 
 public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
 {
@@ -74,6 +77,7 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
         }).CreateClient();
     }
 
+
     [Trait("Category", "Testando endpoint GET /city")]
     [Theory(DisplayName = "Será validado se a resposta do status é 200")]
     [InlineData("/city")]
@@ -82,6 +86,7 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
         var response = await _clientTest.GetAsync(url);
         Assert.Equal(System.Net.HttpStatusCode.OK, response?.StatusCode);
     }
+
 
     [Trait("Category", "Testando endpoint POST /city")]
     [Theory(DisplayName = "Será validado se a resposta do status code é 201 e o JSON de resposta correto")]
@@ -95,15 +100,41 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(new City { CityId = 3, Name = "Belém" }.Name, JsonConvert.DeserializeObject<City>(await response!.Content.ReadAsStringAsync())!.Name);
     }
 
+
     [Trait("Category", "Testando endpoint GET /hotel")]
     [Theory(DisplayName = "Será validado se a resposta do status code é 200 e o JSON de resposta está correto")]
     [InlineData("/hotel")]
     public async Task TestGetHotel(string url)
     {
         var response = await _clientTest.GetAsync(url);
-        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);        
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(JsonConvert.DeserializeObject<List<Hotel>>(await response!.Content.ReadAsStringAsync()));
         Assert.True(JsonConvert.DeserializeObject<List<Hotel>>(await response!.Content.ReadAsStringAsync())!.Count > 0);
+    }
+
+
+    [Trait("Category", "Testando endpoint POST /hotel")]
+    [Theory(DisplayName = "Será validado se a resposta do status code é 201 e o JSON de resposta está correto")]
+    [InlineData("/hotel")]
+    public async Task TestPostHotel(string url)
+    {
+        _clientTest.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", new TokenGenerator().Generate(new UserDto
+        {
+            UserId = 1,
+            Name = "Ana",
+            Email = "ana@trybehotel.com",
+            UserType = "admin",
+        }));
+
+        var response = await _clientTest.PostAsync(url, new StringContent(JsonConvert.SerializeObject(new Hotel
+        {
+            Name = "Marrocos",
+            Address = "Address 4",
+            CityId = 1
+        }), Encoding.UTF8, "application/json"));
+        Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal(4, JsonConvert.DeserializeObject<Hotel>(await response.Content.ReadAsStringAsync())!.HotelId);
+        Assert.Contains("Marrocos", JsonConvert.DeserializeObject<Hotel>(await response.Content.ReadAsStringAsync())!.Name);
     }
 
 }
