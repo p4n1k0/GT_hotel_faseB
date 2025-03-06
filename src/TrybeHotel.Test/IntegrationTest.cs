@@ -91,10 +91,19 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
         var response = await _clientTest.PostAsync(url, new StringContent(JsonConvert.SerializeObject(new City
         { CityId = 3, Name = "Belém" }), Encoding.UTF8, "application/json"));
         Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal(new City { CityId = 3, Name = "Belém" }.CityId, JsonConvert.DeserializeObject<City>(await response!.Content.ReadAsStringAsync())!.CityId);
+        Assert.Equal(new City { CityId = 3, Name = "Belém" }.Name, JsonConvert.DeserializeObject<City>(await response!.Content.ReadAsStringAsync())!.Name);
+    }
 
-        var responseObject = JsonConvert.DeserializeObject<City>(await response!.Content.ReadAsStringAsync());
-        Assert.Equal(new City { CityId = 3, Name = "Belém" }.CityId, responseObject!.CityId);
-        Assert.Equal(new City { CityId = 3, Name = "Belém" }.Name, responseObject.Name);
+    [Trait("Category", "Testando endpoint GET /hotel")]
+    [Theory(DisplayName = "Será validado se a resposta do status code é 200 e o JSON de resposta está correto")]
+    [InlineData("/hotel")]
+    public async Task TestGetHotel(string url)
+    {
+        var response = await _clientTest.GetAsync(url);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);        
+        Assert.NotNull(JsonConvert.DeserializeObject<List<Hotel>>(await response!.Content.ReadAsStringAsync()));
+        Assert.True(JsonConvert.DeserializeObject<List<Hotel>>(await response!.Content.ReadAsStringAsync())!.Count > 0);
     }
 
 }
