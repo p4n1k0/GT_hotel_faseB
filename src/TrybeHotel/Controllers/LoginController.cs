@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using TrybeHotel.Models;
 using TrybeHotel.Repository;
 using TrybeHotel.Dto;
 using TrybeHotel.Services;
-using Microsoft.AspNetCore.Server.IIS;
 
 namespace TrybeHotel.Controllers
 {
@@ -27,9 +25,9 @@ namespace TrybeHotel.Controllers
                 var token = new TokenGenerator().Generate(_repository.Login(login));
                 return Ok(new { token });
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return Unauthorized(new { message = e.Message });
+                return Unauthorized(new { message = ex.Message });
             }
         }
     }

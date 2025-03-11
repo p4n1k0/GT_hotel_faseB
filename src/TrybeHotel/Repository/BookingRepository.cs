@@ -32,7 +32,6 @@ namespace TrybeHotel.Repository
 
             _context.Bookings.Add(entity);
             _context.SaveChanges();
-
             return GetBooking(entity.BookingId, email);
         }
 

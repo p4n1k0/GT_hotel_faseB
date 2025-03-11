@@ -1,9 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using TrybeHotel.Models;
 using TrybeHotel.Dto;
 
 namespace TrybeHotel.Services
@@ -22,25 +20,23 @@ namespace TrybeHotel.Services
         }
         public string Generate(UserDto user)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(new SecurityTokenDescriptor()
+            return new JwtSecurityTokenHandler().WriteToken(new JwtSecurityTokenHandler().CreateToken(new SecurityTokenDescriptor
             {
                 Subject = AddClaims(user),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey
-                (Encoding.ASCII.GetBytes(_tokenOptions.Secret!)), SecurityAlgorithms.HmacSha256Signature),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_tokenOptions.Secret!)),
+                SecurityAlgorithms.HmacSha256Signature),
                 Expires = DateTime.Now.AddDays(_tokenOptions.ExpiresDay),
-            });
-            return tokenHandler.WriteToken(token);
+            }));
         }
 
         private static ClaimsIdentity AddClaims(UserDto user)
         {
             var claimsIdentity = new ClaimsIdentity();
-            claimsIdentity.AddClaim(new (ClaimTypes.Email, user.Email!));
+            claimsIdentity.AddClaim(new(ClaimTypes.Email, user.Email!));
 
-            if ("admin" == user.UserType)
+            if (user.UserType is "admin")
             {
-                claimsIdentity.AddClaim(new (ClaimTypes.Role, "admin"));
+                claimsIdentity.AddClaim(new(ClaimTypes.Role, "admin"));
             }
             return claimsIdentity;
         }
