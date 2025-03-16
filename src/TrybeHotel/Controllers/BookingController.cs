@@ -23,12 +23,11 @@ namespace TrybeHotel.Controllers
         {
             try
             {
-                return StatusCode(201, _repository.Add(bookingInsert, (HttpContext.User.Identity as ClaimsIdentity)!
-                .Claims.First(claim => claim.Type == ClaimTypes.Email).Value));
+                return StatusCode(201, _repository.Add(bookingInsert, (HttpContext.User.Identity as ClaimsIdentity)!.Claims.First(claim => claim.Type == ClaimTypes.Email).Value));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest();
             }
         }
 
@@ -38,8 +37,7 @@ namespace TrybeHotel.Controllers
         {
             try
             {
-                return Ok(_repository.GetBooking(Bookingid, (HttpContext.User.Identity as ClaimsIdentity)!
-                .Claims.First(claim => claim.Type == ClaimTypes.Email).Value));
+                return Ok(_repository.GetBooking(Bookingid, (HttpContext.User.Identity as ClaimsIdentity)!.Claims.First(claim => claim.Type == ClaimTypes.Email).Value));
 
             }
             catch (Exception)

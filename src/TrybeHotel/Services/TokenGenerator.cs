@@ -20,11 +20,12 @@ namespace TrybeHotel.Services
         }
         public string Generate(UserDto user)
         {
-            return new JwtSecurityTokenHandler().WriteToken(new JwtSecurityTokenHandler().CreateToken(new SecurityTokenDescriptor
+            var token = new JwtSecurityTokenHandler();
+            return token.WriteToken(token.CreateToken(new SecurityTokenDescriptor
             {
                 Subject = AddClaims(user),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_tokenOptions.Secret!)),
-                SecurityAlgorithms.HmacSha256Signature),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey
+                (Encoding.ASCII.GetBytes(_tokenOptions.Secret!)), SecurityAlgorithms.HmacSha256Signature),
                 Expires = DateTime.Now.AddDays(_tokenOptions.ExpiresDay),
             }));
         }
@@ -32,12 +33,8 @@ namespace TrybeHotel.Services
         private static ClaimsIdentity AddClaims(UserDto user)
         {
             var claimsIdentity = new ClaimsIdentity();
-            claimsIdentity.AddClaim(new(ClaimTypes.Email, user.Email!));
-
-            if (user.UserType is "admin")
-            {
-                claimsIdentity.AddClaim(new(ClaimTypes.Role, "admin"));
-            }
+            claimsIdentity.AddClaim(new (ClaimTypes.Email, user.Email!));
+            if (user.UserType is "admin") claimsIdentity.AddClaim(new (ClaimTypes.Role, "admin"));
             return claimsIdentity;
         }
     }

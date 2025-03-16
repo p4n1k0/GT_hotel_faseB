@@ -15,7 +15,6 @@ namespace TrybeHotel.Repository
             return _context.Users.Where(user => user.UserId == userId)
             .Select(user => new UserDto
             {
-                UserId = user.UserId,
                 Name = user.Name,
                 Email = user.Email,
                 UserType = user.UserType,
@@ -24,10 +23,8 @@ namespace TrybeHotel.Repository
 
         public UserDto Login(LoginDto login)
         {
-            var user = _context.Users
-            .SingleOrDefault(u => u.Email == login.Email && u.Password == login.Password);
-
-            return user == null
+            var user = _context.Users.SingleOrDefault(u => u.Email == login.Email && u.Password == login.Password);
+            return user is null
                 ? throw new UnauthorizedAccessException("Incorrect e-mail or password")
                 : new UserDto
                 {
@@ -39,29 +36,24 @@ namespace TrybeHotel.Repository
         }
         public UserDto Add(UserDtoInsert user)
         {
-            if (!_context.Users.Any(u => u.Email == user.Email))
+            if (_context.Users.Any(u => u.Email == user.Email)) throw new InvalidOperationException("User email already exists");
+            var newUser = new User
             {
-                var newUser = new User
-                {
-                    Name = user.Name,
-                    Password = user.Password,
-                    Email = user.Email,
-                    UserType = "client"
-                };
-                _context.Users.Add(newUser);
-                _context.SaveChanges();
-                return new UserDto
-                {
-                    UserId = newUser.UserId,
-                    Name = newUser.Name,
-                    Email = newUser.Email,
-                    UserType = newUser.UserType,
-                };
-            }
-            else
+                Name = user.Name,
+                Password = user.Password,
+                Email = user.Email,
+                UserType = "client",
+            };
+            _context.Users.Add(newUser);
+            _context.SaveChanges();
+
+            return new UserDto
             {
-                throw new InvalidOperationException("User email already exists");
-            }
+                UserId = newUser.UserId,
+                Name = newUser.Name,
+                Email = newUser.Email,
+                UserType = newUser.UserType,
+            };
         }
 
         public UserDto GetUserByEmail(string userEmail)
@@ -71,7 +63,6 @@ namespace TrybeHotel.Repository
             {
                 UserId = user.UserId,
                 Name = user.Name,
-                Email = user.Email,
                 UserType = user.UserType,
             }).First();
         }

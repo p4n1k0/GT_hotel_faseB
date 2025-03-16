@@ -77,7 +77,8 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
     [InlineData("/city")]
     public async Task TestGetCity(string url)
     {
-        Assert.Equal(System.Net.HttpStatusCode.OK, (await _clientTest.GetAsync(url))?.StatusCode);
+        var response = await _clientTest.GetAsync(url);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response?.StatusCode);
     }
 
 
@@ -86,8 +87,9 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
     [InlineData("/city")]
     public async Task TestPostCity(string url)
     {
-        Assert.Equal(System.Net.HttpStatusCode.Created, (await _clientTest.PostAsync(url, new StringContent(JsonConvert.SerializeObject(new City
-        { CityId = 3, Name = "Belém" }), Encoding.UTF8, "application/json"))).StatusCode);
+        var response = await _clientTest.PostAsync(url, new StringContent(JsonConvert.SerializeObject(new
+        { CityId = 3, Name = "Belém" }), Encoding.UTF8, "application/json"));
+        Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
     }
 
 
@@ -96,7 +98,8 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
     [InlineData("/hotel")]
     public async Task TestGetHotel(string url)
     {
-        Assert.Equal(System.Net.HttpStatusCode.OK, (await _clientTest.GetAsync(url)).StatusCode);
+        var response = await _clientTest.GetAsync(url);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
 
 
@@ -113,12 +116,13 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
             UserType = "admin",
         }));
 
-        Assert.Equal(System.Net.HttpStatusCode.Created, (await _clientTest.PostAsync(url, new StringContent(JsonConvert.SerializeObject(new Hotel
+        var response = await _clientTest.PostAsync(url, new StringContent(JsonConvert.SerializeObject(new Hotel
         {
             Name = "Marrocos",
             Address = "Address 4",
-            CityId = 1
-        }), Encoding.UTF8, "application/json"))).StatusCode);
+            CityId = 1,
+        }), Encoding.UTF8, "application/json"));
+        Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
     }
 
 
@@ -127,6 +131,7 @@ public class IntegrationTest : IClassFixture<WebApplicationFactory<Program>>
     [InlineData("/room/1")]
     public async Task TestGetRoomByHotelIdStatusCodeOk(string url)
     {
-        Assert.Equal(System.Net.HttpStatusCode.OK, (await _clientTest.GetAsync(url)).StatusCode);
+        var response = await _clientTest.GetAsync(url);
+        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
     }
 }

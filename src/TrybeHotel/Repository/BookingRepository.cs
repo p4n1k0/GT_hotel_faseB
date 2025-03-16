@@ -14,22 +14,15 @@ namespace TrybeHotel.Repository
 
         public BookingResponse Add(BookingDtoInsert booking, string email)
         {
-            if (booking.GuestQuant > GetRoomById(booking.RoomId).Capacity)
-            {
-                throw new BadHttpRequestException("Guest quantity over room capacity");
-            }
-
+            if (booking.GuestQuant > GetRoomById(booking.RoomId).Capacity) throw new BadHttpRequestException("Guest quantity over room capacity");
             var entity = new Booking
             {
                 CheckIn = booking.CheckIn,
                 CheckOut = booking.CheckOut,
                 GuestQuant = booking.GuestQuant,
-                UserId = _context.Users
-                .Select(user => new { user.Email, user.UserId })
-                .First(user => user.Email == email).UserId,
+                UserId = _context.Users.Select(user => new { user.Email, user.UserId }).First(user => user.Email == email).UserId,
                 RoomId = booking.RoomId,
             };
-
             _context.Bookings.Add(entity);
             _context.SaveChanges();
             return GetBooking(entity.BookingId, email);
@@ -37,15 +30,11 @@ namespace TrybeHotel.Repository
 
         public BookingResponse GetBooking(int bookingId, string email)
         {
-            if (_context.Users.Select(user => new { user.Email, user.UserId})
+            if (_context.Users.Select(user => new { user.Email, user.UserId })
             .First(user => user.Email == email).UserId != _context.Bookings
-            .Select(booking => new { booking.BookingId, booking.UserId})
+            .Select(booking => new { booking.BookingId, booking.UserId })
             .First(booking => booking.BookingId == bookingId)
-            .UserId)
-            {
-                throw new UnauthorizedAccessException();
-            }
-
+            .UserId) throw new UnauthorizedAccessException();
             return _context.Bookings
             .Include(booking => booking.Room)
             .ThenInclude(room => room!.Hotel)
@@ -70,7 +59,7 @@ namespace TrybeHotel.Repository
                         Address = booking.Room.Hotel.Address,
                         CityId = booking.Room.Hotel.CityId,
                         CityName = booking.Room.Hotel.City!.Name,
-                    }
+                    },
                 }
             }).First();
         }
